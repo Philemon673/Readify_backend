@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  username       String          @unique
+  password       String          // always store bcrypt hash, never plaintext
+
+  favouriteBooks FavouriteBook[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model FavouriteBook {
+  id           Int      @id @default(autoincrement())
+  googleBookId String   // ID from Google Books API e.g. "zyTCAlFPjgYC"
+  title        String   // cache title to avoid re-fetching just to display
+  thumbnail    String?  // cache cover image URL
+  authors      String   // e.g. "J.K. Rowling"
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+
+  savedAt      DateTime @default(now())
+
+  @@unique([userId, googleBookId]) // prevents duplicate favourites per user
+}
