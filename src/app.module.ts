@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { FavouriteModule } from './favourites/favourite.module';
+import { BooksModule } from './books/books.module';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { FavouriteModule } from './favourites/favourite.module';
     PrismaModule,
     AuthModule,
     FavouriteModule,
-  ],
+    BooksModule],
   providers: [
     {
       // Apply DTO validation globally — no need to add ValidationPipe per route
