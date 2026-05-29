@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,9 +22,33 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  // Swagger Configuration
+  const config = new DocumentBuilder()
+    .setTitle('Readify API')
+    .setDescription('The API documentation for Readify backend application')
+    .setVersion('1.0')
+    .addCookieAuth('readify_token', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'readify_token',
+      description: 'Session cookie for authenticating requests',
+    })
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  // Auto-generate swagger.json file in the project root
+  fs.writeFileSync(
+    path.join(__dirname, '..', '..', 'swagger.json'),
+    JSON.stringify(document, null, 2),
+  );
+
   const port = process.env.PORT ?? 8000;
   await app.listen(port);
   console.log(` Readify API running on http://localhost:${port}/api`);
+  console.log(` Swagger documentation available on http://localhost:${port}/api/docs`);
+  console.log(` Swagger JSON file generated at project root: swagger.json`);
 }
 
 bootstrap();

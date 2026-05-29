@@ -6,8 +6,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { SearchBooksDto } from './dto/search-books.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { SearchBooksDto } from './dto/search-book.dto';
+import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 
 @Controller('books')
 export class BooksController {

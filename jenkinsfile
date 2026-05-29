@@ -1,0 +1,62 @@
+pipeline {
+  agent any
+
+  environment {
+    BACKEND_IMAGE = "my-website-backend:${BUILD_NUMBER}"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Install') {
+      steps {
+        dir('backend') {
+          sh 'npm install'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        dir('backend') {
+          sh 'npm run test:cov'
+        }
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        dir('backend') {
+          withSonarQubeEnv('MysonarQube') {
+            sh 'sonar-scanner'
+          }
+        }
+      }
+    }
+
+    stage('Quality Gate') {
+      steps {
+        waitForQualityGate abortPipeline: true
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        dir('backend') {
+          sh "docker build -t ${BACKEND_IMAGE} ."
+        }
+      }
+    }
+
+    stage('Deploy Backend') {
+      steps {
+        sh "docker stop my-website-backend || true"
+        sh "docker rm my-website-backend || true"
+        sh "docker run -d -p 4000:4000 --name my-website-backend ${BACKEND_IMAGE}"
+      }
+    }
+  }
+}

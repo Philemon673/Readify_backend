@@ -4,8 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
-import { SearchBooksDto } from './dto/search-books.dto';
+import { SearchBooksDto } from './dto/search-book.dto';
 
 const GOOGLE_BOOKS_URL = 'https://www.googleapis.com/books/v1';
 
@@ -74,7 +75,7 @@ export class BooksService {
     if (filter) params.filter = filter;
 
     try {
-      const response = await firstValueFrom(
+      const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.get(`${GOOGLE_BOOKS_URL}/volumes`, { params }),
       );
 
@@ -86,7 +87,8 @@ export class BooksService {
         maxResults: maxResults ?? 12,
         books: (data.items ?? []).map(formatBook),
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Google Books API Search Error:', error?.response?.data ?? error.message ?? error);
       throw new InternalServerErrorException(
         'Failed to fetch books from Google Books API.',
       );
@@ -96,7 +98,7 @@ export class BooksService {
   // ── Get a single book by Google Book ID ───────────────────────────
   async getBookById(googleBookId: string) {
     try {
-      const response = await firstValueFrom(
+      const response: AxiosResponse<any> = await firstValueFrom(
         this.httpService.get(`${GOOGLE_BOOKS_URL}/volumes/${googleBookId}`, {
           params: { key: process.env.GOOGLE_BOOKS_API_KEY },
         }),
@@ -104,6 +106,7 @@ export class BooksService {
 
       return formatBook(response.data);
     } catch (error: any) {
+      console.error('Google Books API Details Error:', error?.response?.data ?? error.message ?? error);
       if (error?.response?.status === 404) {
         throw new NotFoundException(`Book with ID "${googleBookId}" not found.`);
       }
