@@ -107,10 +107,10 @@ export class AuthService {
 
   private setAuthCookie(res: Response, token: string): void {
     res.cookie('readify_token', token, {
-      httpOnly: true, // JS cannot access — prevents XSS attacks
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-      sameSite: 'lax', // CSRF protection
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days in milliseconds
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       path: '/',
     });
   }
