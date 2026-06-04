@@ -7,9 +7,9 @@
     "assets": [
       {
         "include": "generated/client/**/*",
-        "outDir": "dist/generated/client"
+        "outDir": "dist/src/generated/client",
+        "watchAssets": true
       }
-    ],
-    "watchAssets": true
+    ]
   }
 }
