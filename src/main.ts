@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import * as fs from 'fs';
-import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,11 +36,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Auto-generate swagger.json file in the project root
-  fs.writeFileSync(
-    path.join(__dirname, '..', '..', 'swagger.json'),
-    JSON.stringify(document, null, 2),
-  );
 
   const port = process.env.PORT ?? 8000;
   await app.listen(port);
